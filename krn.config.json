@@ -1,0 +1,14 @@
+{
+    "$schema": "https://unpkg.corp.kuaishou.com/@krn/cli-shared@latest/dist/schema.json",
+    "entry": {
+        "KSGroupBundle": "./src/index.tsx"
+    },
+    "scheme": "kwai://",
+    "framework": "React",
+    "useWebpack": {
+        "KSGroupBundle": true
+    },
+    "userPlugins": [
+        "@gundam/krn-plugin-runner/zaku"
+    ]
+}

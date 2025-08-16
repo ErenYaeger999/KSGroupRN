@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./",
+        "allowJs": true,
+        "jsx": "react-native",
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "noEmit": true,
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+        }
+    },
+    "include": [
+        "./src/**/*",
+        "./*.ts",
+        "./*.js"
+    ]
+}
