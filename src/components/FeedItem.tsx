@@ -1,12 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import {
-    View,
-    Text,
-    Image,
-    StyleSheet,
-    TouchableOpacity,
-    Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import KwaiImage from '@kds/image';
 
 interface PhotoModel {
     photo_id: string;
@@ -80,7 +74,7 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                             : null,
                     ]}
                 >
-                    <View style={styles.oneImagePlaceholder} />
+                    <KwaiImage style={styles.oneImage} source={{ uri: photo.images[0] }} />
                 </View>
             );
         }
@@ -94,8 +88,8 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                             : null,
                     ]}
                 >
-                    <View style={styles.twoImageLeftPlaceholder} />
-                    <View style={styles.twoImageRightPlaceholder} />
+                    <KwaiImage style={styles.twoImageLeft} source={{ uri: photo.images[0] }} />
+                    <KwaiImage style={styles.twoImageRight} source={{ uri: photo.images[1] }} />
                 </View>
             );
         }
@@ -108,10 +102,10 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                         : null,
                 ]}
             >
-                <View style={styles.threeImagePlaceholder} />
-                <View style={styles.threeImagePlaceholder} />
+                <KwaiImage style={styles.threeImage} source={{ uri: photo.images[0] }} />
+                <KwaiImage style={styles.threeImage} source={{ uri: photo.images[1] }} />
                 <View>
-                    <View style={styles.threeImagePlaceholder} />
+                    <KwaiImage style={styles.threeImage} source={{ uri: photo.images[2] }} />
                     {imageCount > 3 ? (
                         <View style={styles.photoCountContainer}>
                             <View style={styles.photoCountBg}>
@@ -129,7 +123,7 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     return (
         <View style={styles.container}>
             <View style={styles.avatarContainer}>
-                <View style={styles.avatar} />
+                <KwaiImage style={styles.avatar} source={{ uri: photo.avatar_url }} />
                 <Text style={styles.userName} numberOfLines={1}>
                     {photo.user_name}
                 </Text>

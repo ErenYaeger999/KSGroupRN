@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, BackHandler } from 'react-native';
 import { useSharedStore } from '../store/store';
+import { useFetchGroupInfo } from '../network/GroupService';
 
 interface GroupHeaderProps {
     groupId?: number;
@@ -8,22 +9,19 @@ interface GroupHeaderProps {
 
 export const GroupHeader: React.FC<GroupHeaderProps> = ({ groupId = 1 }) => {
     const { setNavigationTitle } = useSharedStore();
+    const navigationTitle = useSharedStore((s) => s.navigationTitle);
     const [joined, setJoined] = useState(false);
 
-    const mock = useMemo(
-        () => ({
-            icon: 'placeholder:group',
-            name: '图文兴趣小组示例',
-            participantsCount: 12345,
-            photoCount: 678,
-            desc: '这是一个用于演示的小组简介，限制一行显示。',
-        }),
-        [],
-    );
+    // 正确使用 Hook：不要把 Hook 放到 useMemo 里
+    const groupInfo = useFetchGroupInfo(groupId);
 
     React.useEffect(() => {
-        setNavigationTitle(mock.name);
-    }, [mock.name, setNavigationTitle]);
+        const newName = groupInfo?.data?.group?.name;
+        if (!newName) return;
+        if (navigationTitle !== newName) {
+            setNavigationTitle(newName);
+        }
+    }, [groupInfo?.data?.group?.name, navigationTitle, setNavigationTitle]);
 
     const formatCount = (count: number) => {
         if (count >= 10000) {
@@ -37,7 +35,6 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({ groupId = 1 }) => {
             <TouchableOpacity
                 style={styles.backBtn}
                 onPress={() => {
-                    // 优先走原生/外部传入回退；否则尝试退出（占位行为）
                     try {
                         // @ts-ignore
                         if (typeof globalThis?.onGroupPageBack === 'function') {
@@ -52,19 +49,23 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({ groupId = 1 }) => {
             >
                 <Text style={styles.backIcon}>{'‹'}</Text>
             </TouchableOpacity>
-            <View style={styles.bg} />
+            <View style={styles.bg} >
+                <Image source={{ uri: groupInfo.data?.group.bgImage }} style={styles.bg} />
+            </View>
             <View style={styles.contentRow}>
-                <View style={styles.avatar} />
+                <View style={styles.avatar} >
+                    <Image source={{ uri: groupInfo.data?.group.icon }} style={styles.avatar} />
+                </View>
                 <View style={styles.info}>
                     <Text style={styles.name} numberOfLines={1}>
-                        {mock.name}
+                        {groupInfo.data?.group.name}
                     </Text>
                     <View style={styles.statsRow}>
                         <Text style={styles.stats}>
-                            {formatCount(mock.participantsCount)}人参与
+                            {formatCount(groupInfo.data?.group.participantsCount)}人参与
                         </Text>
                         <Text style={styles.stats}>
-                            {formatCount(mock.photoCount)}帖子
+                            {formatCount(groupInfo.data?.group.photoCount)}帖子
                         </Text>
                     </View>
                 </View>
@@ -85,7 +86,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({ groupId = 1 }) => {
                 )}
             </View>
             <Text style={styles.desc} numberOfLines={1}>
-                {mock.desc}
+                {groupInfo.data?.group.desc}
             </Text>
         </View>
     );
