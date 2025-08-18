@@ -126,6 +126,7 @@ const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
                 collected: !!photo?.collected,
                 collect_count: photo?.collect_count ?? 0,
                 comment_count: photo?.comment_count ?? 0,
+                ...photo
             },
         };
     }, []); // 依赖空数组，不会变化
