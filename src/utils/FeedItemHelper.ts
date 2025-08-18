@@ -118,6 +118,18 @@ export const onLikePress = (
     }, 100);
 };
 
+// @用户点击事件
+export const onMentionPress = (user_id: string) => {
+    jumpUrl(`kwai://profile/${user_id}`);
+};
+
+// 话题点击事件
+export const onTopicPress = (topicName: string) => {
+    console.log('点击话题:', topicName);
+    // TODO: 在这里添加话题页面跳转逻辑
+    jumpUrl(`kwai://topic/${topicName}`);
+};
+
 // 收藏事件
 export const onCollectPress = (
     photo: any,

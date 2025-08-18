@@ -8,8 +8,10 @@ import {
     onContentPress,
     onLikePress,
     onCollectPress,
+    onMentionPress,
+    onTopicPress,
     formatCount,
-    formatTimestamp
+    formatTimestamp,
 } from '../utils/FeedItemHelper';
 
 interface PhotoModel {
@@ -55,6 +57,122 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     }, [photo.timestamp]);
 
     const imageCount = photo.images.length;
+
+    // 解析文字中的@用户信息和#话题信息
+    const parseText = (text: string) => {
+        // 先处理@用户，再处理#话题 - 支持中文字符
+        const mentionRegex = /@([^\s@()]+)\((O\w+)\)/g;
+        const topicRegex = /#([^\s#]+)/g;
+        
+        const parts = [];
+        const mentions = [];
+        const topics = [];
+        
+        // 收集所有@用户匹配
+        let mentionMatch;
+        while ((mentionMatch = mentionRegex.exec(text)) !== null) {
+            mentions.push({
+                start: mentionMatch.index,
+                end: mentionMatch.index + mentionMatch[0].length,
+                type: 'mention',
+                content: `@${mentionMatch[1]}`,
+                userId: mentionMatch[2].substring(1),
+                userName: mentionMatch[1]
+            });
+        }
+        
+        // 收集所有#话题匹配
+        let topicMatch;
+        while ((topicMatch = topicRegex.exec(text)) !== null) {
+            // 检查是否与@用户重叠
+            const isOverlapping = mentions.some(mention => 
+                topicMatch.index >= mention.start && topicMatch.index < mention.end
+            );
+            
+            if (!isOverlapping) {
+                topics.push({
+                    start: topicMatch.index,
+                    end: topicMatch.index + topicMatch[0].length,
+                    type: 'topic',
+                    content: topicMatch[0],
+                    topicName: topicMatch[1]
+                });
+            }
+        }
+        
+        // 合并并排序所有匹配
+        const allMatches = [...mentions, ...topics].sort((a, b) => a.start - b.start);
+        
+        let lastIndex = 0;
+        allMatches.forEach(match => {
+            // 添加普通文字
+            if (match.start > lastIndex) {
+                parts.push({
+                    type: 'text',
+                    content: text.substring(lastIndex, match.start)
+                });
+            }
+            
+            // 添加特殊元素
+            parts.push(match);
+            lastIndex = match.end;
+        });
+        
+        // 添加剩余文字
+        if (lastIndex < text.length) {
+            parts.push({
+                type: 'text',
+                content: text.substring(lastIndex)
+            });
+        }
+        
+        return parts;
+    };
+
+    // 渲染富文本
+    const renderRichText = (text: string, style: any, numberOfLines?: number) => {
+        const parts = parseText(text);
+        
+        // 调试信息
+        if (text.includes('@') || text.includes('#')) {
+            console.log('解析文本:', text);
+            console.log('解析结果:', parts);
+        }
+        
+        return (
+            <Text style={style} numberOfLines={numberOfLines}>
+                {parts.map((part, index) => {
+                    if (part.type === 'mention') {
+                        return (
+                            <Text
+                                key={index}
+                                style={styles.mention}
+                                onPress={() => onMentionPress(part.userId)}
+                            >
+                                {part.content}
+                            </Text>
+                        );
+                    } else if (part.type === 'topic') {
+                        return (
+                            <Text
+                                key={index}
+                                style={styles.topic}
+                                onPress={() => onTopicPress(part.topicName)}
+                            >
+                                {part.content}
+                            </Text>
+                        );
+                    } else {
+                        return (
+                            <Text key={index}>
+                                {part.content}
+                            </Text>
+                        );
+                    }
+                })}
+            </Text>
+        );
+    };
 
     const handleLike = () => {
         onLikePress(
@@ -173,26 +291,18 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
             <TouchableOpacity activeOpacity={0.8} onPress={() => onContentPress(photo, rootTag, false)}>
                 <View style={styles.descriptionContainer}>
                     {photo.caption_title ? (
-                        <Text
-                            style={[
-                                styles.captionTitle,
-                                { marginBottom: photo.caption ? 6 : 0 },
-                            ]}
-                            numberOfLines={1}
-                        >
-                            {photo.caption_title}
-                        </Text>
+                        renderRichText(
+                            photo.caption_title,
+                            [styles.captionTitle, { marginBottom: photo.caption ? 6 : 0 }],
+                            1
+                        )
                     ) : null}
                     {photo.caption ? (
-                        <Text style={styles.description} numberOfLines={3}>
-                            {photo.caption}
-                            {photo.caption.length > 34 ? (
-                                <Text style={styles.descriptionTail}>
-                                    {' '}
-                                    全文
-                                </Text>
-                            ) : null}
-                        </Text>
+                        renderRichText(
+                            photo.caption,
+                            styles.description,
+                            3
+                        )
                     ) : null}
                 </View>
             </TouchableOpacity>
@@ -263,6 +373,16 @@ const styles = StyleSheet.create({
     descriptionTail: {
         fontSize: 15,
         color: '#666666',
+    },
+    mention: {
+        fontSize: 15,
+        color: '#1890ff',  // 蓝色
+        fontWeight: '500', // 稍微加粗
+    },
+    topic: {
+        fontSize: 15,
+        color: '#1890ff',  // 蓝色
+        fontWeight: '500', // 稍微加粗
     },
     oneImageContainer: {
         marginLeft: 40,
