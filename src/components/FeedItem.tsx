@@ -1,6 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import KwaiImage from '@kds/image';
+import { useSharedStore } from '../store/store';
+import {
+    onAvatarPress,
+    onImagePress,
+    onContentPress,
+    onLikePress,
+    onCollectPress,
+    onCommentPress,
+    formatCount,
+    formatTimestamp
+} from '../utils/FeedItemHelper';
 
 interface PhotoModel {
     photo_id: string;
@@ -36,28 +47,42 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     const [likeCount, setLikeCount] = useState(photo.like_count || 0);
     const [isCollected, setIsCollected] = useState(!!photo.collected);
     const [collectCount, setCollectCount] = useState(photo.collect_count || 0);
+    
+    // 获取全局状态
+    const { rootTag } = useSharedStore();
 
     const timeText = useMemo(() => {
-        const date = new Date(photo.timestamp);
-        return `${
-            date.getMonth() + 1
-        }-${date.getDate()} ${date.getHours()}:${String(
-            date.getMinutes(),
-        ).padStart(2, '0')}`;
+        return formatTimestamp(photo.timestamp);
     }, [photo.timestamp]);
 
     const imageCount = photo.images.length;
 
-    const onLike = () => {
-        const next = !isLike;
-        setIsLike(next);
-        setLikeCount((n) => Math.max(0, n + (next ? 1 : -1)));
+    const handleLike = () => {
+        onLikePress(
+            photo,
+            isLike,
+            (newLikeState, newCount) => {
+                setIsLike(newLikeState);
+                setLikeCount(newCount);
+            },
+            (error) => {
+                console.log('点赞失败:', error);
+            }
+        );
     };
 
-    const onCollect = () => {
-        const next = !isCollected;
-        setIsCollected(next);
-        setCollectCount((n) => Math.max(0, n + (next ? 1 : -1)));
+    const handleCollect = () => {
+        onCollectPress(
+            photo,
+            isCollected,
+            (newCollectState, newCount) => {
+                setIsCollected(newCollectState);
+                setCollectCount(newCount);
+            },
+            (error) => {
+                console.log('收藏失败:', error);
+            }
+        );
     };
 
     const renderImages = () => {
@@ -74,7 +99,9 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                             : null,
                     ]}
                 >
-                    <KwaiImage style={styles.oneImage} source={{ uri: photo.images[0] }} />
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag)}>
+                        <KwaiImage style={styles.oneImage} source={{ uri: photo.images[0] }} />
+                    </TouchableOpacity>
                 </View>
             );
         }
@@ -88,8 +115,12 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                             : null,
                     ]}
                 >
-                    <KwaiImage style={styles.twoImageLeft} source={{ uri: photo.images[0] }} />
-                    <KwaiImage style={styles.twoImageRight} source={{ uri: photo.images[1] }} />
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag)}>
+                        <KwaiImage style={styles.twoImageLeft} source={{ uri: photo.images[0] }} />
+                    </TouchableOpacity>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 1, rootTag)}>
+                        <KwaiImage style={styles.twoImageRight} source={{ uri: photo.images[1] }} />
+                    </TouchableOpacity>
                 </View>
             );
         }
@@ -102,20 +133,26 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                         : null,
                 ]}
             >
-                <KwaiImage style={styles.threeImage} source={{ uri: photo.images[0] }} />
-                <KwaiImage style={styles.threeImage} source={{ uri: photo.images[1] }} />
-                <View>
-                    <KwaiImage style={styles.threeImage} source={{ uri: photo.images[2] }} />
-                    {imageCount > 3 ? (
-                        <View style={styles.photoCountContainer}>
-                            <View style={styles.photoCountBg}>
-                                <Text
-                                    style={styles.photoCount}
-                                >{`共${imageCount}张`}</Text>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag)}>
+                    <KwaiImage style={styles.threeImage} source={{ uri: photo.images[0] }} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 1, rootTag)}>
+                    <KwaiImage style={styles.threeImage} source={{ uri: photo.images[1] }} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 2, rootTag)}>
+                    <View>
+                        <KwaiImage style={styles.threeImage} source={{ uri: photo.images[2] }} />
+                        {imageCount > 3 ? (
+                            <View style={styles.photoCountContainer}>
+                                <View style={styles.photoCountBg}>
+                                    <Text
+                                        style={styles.photoCount}
+                                    >{`共${imageCount}张`}</Text>
+                                </View>
                             </View>
-                        </View>
-                    ) : null}
-                </View>
+                        ) : null}
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     };
@@ -123,12 +160,14 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     return (
         <View style={styles.container}>
             <View style={styles.avatarContainer}>
-                <KwaiImage style={styles.avatar} source={{ uri: photo.avatar_url }} />
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onAvatarPress(photo)}>
+                    <KwaiImage style={styles.avatar} source={{ uri: photo.avatar_url }} />
+                </TouchableOpacity>
                 <Text style={styles.userName} numberOfLines={1}>
                     {photo.user_name}
                 </Text>
             </View>
-            <TouchableOpacity activeOpacity={0.8}>
+            <TouchableOpacity activeOpacity={0.8} onPress={() => onContentPress(photo, rootTag)}>
                 <View style={styles.descriptionContainer}>
                     {photo.caption_title ? (
                         <Text
@@ -158,25 +197,27 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
             <View style={styles.bottomContainer}>
                 <Text style={styles.time}>{`${timeText} 发布`}</Text>
                 <View style={styles.interactionContainer}>
-                    <TouchableOpacity activeOpacity={0.8} onPress={onLike}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={handleLike}>
                         <View style={styles.interaction}>
                             <Text style={styles.interactionText}>
-                                {isLike ? '❤️' : '🤍'} {likeCount}
+                                {isLike ? '❤️' : '🤍'} {formatCount(likeCount)}
                             </Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.8} onPress={onCollect}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={handleCollect}>
                         <View style={styles.interaction}>
                             <Text style={styles.interactionText}>
-                                {isCollected ? '⭐️' : '☆'} {collectCount}
+                                {isCollected ? '⭐️' : '☆'} {formatCount(collectCount)}
                             </Text>
                         </View>
                     </TouchableOpacity>
-                    <View style={styles.interaction}>
-                        <Text style={styles.interactionText}>
-                            💬 {photo.comment_count || 0}
-                        </Text>
-                    </View>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onCommentPress(photo, rootTag)}>
+                        <View style={styles.interaction}>
+                            <Text style={styles.interactionText}>
+                                💬 {formatCount(photo.comment_count || 0)}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>

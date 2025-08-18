@@ -18,6 +18,9 @@ interface SharedStoreState {
 
     headerHeight: number;
     onHeaderLayout: (height: number) => void;
+
+    rootTag?: number;
+    setRootTag: (rootTag: number) => void;
 }
 
 export const useSharedStore = create<SharedStoreState>((set) => ({
@@ -38,4 +41,7 @@ export const useSharedStore = create<SharedStoreState>((set) => ({
 
     headerHeight: 0,
     onHeaderLayout: (height) => set({ headerHeight: height }),
+
+    rootTag: 0,
+    setRootTag: (rootTag) => set({ rootTag }),
 }));

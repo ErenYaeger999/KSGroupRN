@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, BackHandler } from 'react-native';
 import { useSharedStore } from '../store/store';
 import { useFetchGroupInfo } from '../network/GroupService';

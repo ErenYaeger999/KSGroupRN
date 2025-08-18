@@ -1,9 +1,8 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     View,
     StyleSheet,
     Text,
-    FlatList,
     ScrollView,
     NativeSyntheticEvent,
     NativeScrollEvent,
@@ -16,7 +15,6 @@ import NavBar from '../components/NavBar';
 import FloatingActionButton from '../components/FloatingActionButton';
 import FeedItem, { FeedItemModel } from '../components/FeedItem';
 import { useSharedStore } from '../store/store';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { useFetchGroupFeeds } from '../network/GroupService';
 
 const TABS = ['综合', '热门', '最新'];
@@ -79,6 +77,7 @@ const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
     // - 用户名：photo.user_name
     // - 标题/描述：photo.captionTitle / photo.caption
     // - 图片：single => ext_params.single.{list, cdnList}；atlas => ext_params.atlas.{list, cdnList}
+    // useCallback 缓存函数
     const toFeedItemModel = React.useCallback((photo: any) => {
         const getUrl = (cdn?: string, path?: string) => {
             if (!path) return '';
@@ -116,14 +115,20 @@ const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
                 comment_count: photo?.comment_count ?? 0,
             },
         };
-    }, []);
+    }, []); // 依赖空数组，不会变化
 
     const onChangeTab = (idx: number) => {
-        setTabIndex(idx);
-        setCurrentTabIndex(idx);
+        if (idx === tabIndex) return; // 避免重复点击
+        
+        // 先执行滚动，再更新状态
         scrollRef.current?.scrollTo({ x: idx * width, y: 0, animated: true });
-        // 标记为已访问，下一次切回时不再阻止请求
-        visitedRef.current[idx] = true;
+    
+        // 延迟更新状态，让滚动动画先开始
+        setTimeout(() => {
+            setTabIndex(idx);
+            setCurrentTabIndex(idx);
+            visitedRef.current[idx] = true;
+        }, 50);
     };
 
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -155,6 +160,12 @@ const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
         outputRange: [0, 1],
         extrapolate: 'clamp',
     });
+    
+    const backgroundOpacity = scrollY.interpolate({
+        inputRange: [80, 160],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+    });
 
     const onListScroll = Animated.event(
         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -165,7 +176,7 @@ const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
     
     return (
         <View style={styles.container}>
-            <NavBar titleOpacity={titleOpacity} />
+            <NavBar titleOpacity={titleOpacity} backgroundOpacity={backgroundOpacity} />
             {/* 绝对定位的 Header：随当前列表滚动进行位移，视觉上“被推走” */}
             <Animated.View
                 style={{

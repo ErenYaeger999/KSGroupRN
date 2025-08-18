@@ -12,15 +12,39 @@ const getStatusBarHeight = (): number => {
 
 interface NavBarProps {
     titleOpacity?: Animated.AnimatedInterpolation | Animated.Value;
+    backgroundOpacity?: Animated.AnimatedInterpolation | Animated.Value;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ titleOpacity }) => {
+const NavBar: React.FC<NavBarProps> = ({ titleOpacity, backgroundOpacity }) => {
     const title = useSharedStore((s) => s.navigationTitle);
     const statusBarHeight = getStatusBarHeight();
+    
+    const animatedBackgroundStyle = backgroundOpacity ? {
+        backgroundColor: backgroundOpacity.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)'],
+        }),
+    } : {};
+    
     return (
-        <View pointerEvents="none" style={[styles.container, { paddingTop: statusBarHeight }]}> 
-            <Animated.Text numberOfLines={1} style={[styles.title, titleOpacity ? { opacity: titleOpacity } : null]}>{title}</Animated.Text>
-        </View>
+        <Animated.View 
+            pointerEvents="none" 
+            style={[
+                styles.container, 
+                { paddingTop: statusBarHeight },
+                animatedBackgroundStyle
+            ]}
+        > 
+            <Animated.Text 
+                numberOfLines={1} 
+                style={[
+                    styles.title, 
+                    titleOpacity ? { opacity: titleOpacity } : null
+                ]}
+            >
+                {title}
+            </Animated.Text>
+        </Animated.View>
     );
 };
 
@@ -34,15 +58,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 10,
-        backgroundColor: 'transparent',
+        backgroundColor: 'transparent', // 初始透明，通过动画控制
     },
     title: {
         fontSize: 17,
         fontWeight: '600',
-        color: '#FFFFFF',
+        color: '#000000',
     },
 });
 
 export default NavBar;
-
-
