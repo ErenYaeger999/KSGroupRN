@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSharedStore } from '../store/store';
+import { NativeModules } from 'react-native';
 
 interface FloatingActionButtonProps {
     onPress: () => void;
@@ -8,11 +10,24 @@ interface FloatingActionButtonProps {
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     onPress,
 }) => {
+    const { groupId } = useSharedStore();
+
+    const handlePress = () => {
+        console.log('发帖按钮点击', groupId);
+        NativeModules.Kds.invoke(
+            'post',
+            'openAlbumWithoutSpecialTab',
+            JSON.stringify({
+                geminiInterestGroupId: groupId,
+            })
+        )
+    };
+
     return (
         <View style={styles.container} pointerEvents="box-none">
             <TouchableOpacity
                 style={styles.button}
-                onPress={onPress}
+                onPress={() => handlePress()}
                 activeOpacity={0.8}
             >
                 <Text style={styles.plus}>＋</Text>

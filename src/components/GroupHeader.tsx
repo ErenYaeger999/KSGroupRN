@@ -8,7 +8,7 @@ interface GroupHeaderProps {
 }
 
 export const GroupHeader: React.FC<GroupHeaderProps> = ({ groupId = 1 }) => {
-    const { setNavigationTitle } = useSharedStore();
+    const { setNavigationTitle, setGroupName } = useSharedStore();
     const navigationTitle = useSharedStore((s) => s.navigationTitle);
     const [joined, setJoined] = useState(false);
 
@@ -21,7 +21,9 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({ groupId = 1 }) => {
         if (navigationTitle !== newName) {
             setNavigationTitle(newName);
         }
-    }, [groupInfo?.data?.group?.name, navigationTitle, setNavigationTitle]);
+        // 同时设置 groupName 到全局状态
+        setGroupName(newName);
+    }, [groupInfo?.data?.group?.name, navigationTitle, setNavigationTitle, setGroupName]);
 
     const formatCount = (count: number) => {
         if (count >= 10000) {

@@ -49,7 +49,7 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     const [collectCount, setCollectCount] = useState(photo.collect_count || 0);
     
     // 获取全局状态
-    const { rootTag } = useSharedStore();
+    const { rootTag, groupId, groupName } = useSharedStore();
 
     const timeText = useMemo(() => {
         return formatTimestamp(photo.timestamp);
@@ -67,7 +67,9 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
             },
             (error) => {
                 console.log('点赞失败:', error);
-            }
+            },
+            groupId,
+            groupName
         );
     };
 
@@ -81,7 +83,9 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
             },
             (error) => {
                 console.log('收藏失败:', error);
-            }
+            },
+            groupId,
+            groupName
         );
     };
 
@@ -99,7 +103,7 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                             : null,
                     ]}
                 >
-                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag)}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag, groupId, groupName)}>
                         <KwaiImage style={styles.oneImage} source={{ uri: photo.images[0] }} />
                     </TouchableOpacity>
                 </View>
@@ -115,10 +119,10 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                             : null,
                     ]}
                 >
-                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag)}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag, groupId, groupName)}>
                         <KwaiImage style={styles.twoImageLeft} source={{ uri: photo.images[0] }} />
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 1, rootTag)}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 1, rootTag, groupId, groupName)}>
                         <KwaiImage style={styles.twoImageRight} source={{ uri: photo.images[1] }} />
                     </TouchableOpacity>
                 </View>
@@ -133,13 +137,13 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                         : null,
                 ]}
             >
-                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag)}>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag, groupId, groupName)}>
                     <KwaiImage style={styles.threeImage} source={{ uri: photo.images[0] }} />
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 1, rootTag)}>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 1, rootTag, groupId, groupName)}>
                     <KwaiImage style={styles.threeImage} source={{ uri: photo.images[1] }} />
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 2, rootTag)}>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 2, rootTag, groupId, groupName)}>
                     <View>
                         <KwaiImage style={styles.threeImage} source={{ uri: photo.images[2] }} />
                         {imageCount > 3 ? (
@@ -160,14 +164,14 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     return (
         <View style={styles.container}>
             <View style={styles.avatarContainer}>
-                <TouchableOpacity activeOpacity={0.8} onPress={() => onAvatarPress(photo)}>
+                <TouchableOpacity activeOpacity={0.8} onPress={() => onAvatarPress(photo, groupId, groupName)}>
                     <KwaiImage style={styles.avatar} source={{ uri: photo.avatar_url }} />
                 </TouchableOpacity>
                 <Text style={styles.userName} numberOfLines={1}>
                     {photo.user_name}
                 </Text>
             </View>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => onContentPress(photo, rootTag)}>
+            <TouchableOpacity activeOpacity={0.8} onPress={() => onContentPress(photo, rootTag, groupId, groupName)}>
                 <View style={styles.descriptionContainer}>
                     {photo.caption_title ? (
                         <Text
@@ -211,7 +215,7 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                             </Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.8} onPress={() => onCommentPress(photo, rootTag)}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={() => onCommentPress(photo, rootTag, groupId, groupName)}>
                         <View style={styles.interaction}>
                             <Text style={styles.interactionText}>
                                 💬 {formatCount(photo.comment_count || 0)}

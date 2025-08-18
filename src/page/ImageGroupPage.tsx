@@ -45,7 +45,7 @@ const TabBar: React.FC<{ index: number; onChange: (idx: number) => void }> = ({
 };
 
 const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
-    const { setCurrentTabIndex, setGroupId } = useSharedStore();
+    const { setCurrentTabIndex, setGroupId, setRootTag } = useSharedStore();
     const [tabIndex, setTabIndex] = useState(0);
     const width = Dimensions.get('window').width;
     const scrollRef = useRef<ScrollView>(null);
@@ -57,9 +57,22 @@ const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
         nativeProps?.groupId ??
         nativeProps?.props?.groupId;
     const groupId: number = passedGroupId ? Number(passedGroupId) : 1;
+    
+    // 获取rootTag并设置到全局状态
+    const passedRootTag = 
+        route?.params?.rootTag ??
+        nativeProps?.rootTag ??
+        nativeProps?.props?.rootTag;
+    
     React.useEffect(() => {
         setGroupId(groupId);
     }, [groupId, setGroupId]);
+    
+    React.useEffect(() => {
+        if (passedRootTag) {
+            setRootTag(Number(passedRootTag));
+        }
+    }, [passedRootTag, setRootTag]);
 
     // 顶层创建三个查询对象（遵守 Hook 规则）；仅当前页或已访问过的页才启用请求
     const q0 = useFetchGroupFeeds(groupId, 0, { enabled: tabIndex === 0 || visitedRef.current[0] });
