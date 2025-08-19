@@ -218,6 +218,8 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                     <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 0, rootTag)}>
                         <KwaiImage style={styles.oneImage} source={{ uri: photo.images[0] }} />
                     </TouchableOpacity>
+                    {/* 单图右侧空白区域，点击跳转详情页 */}
+                    <View style={styles.oneImageRightSpace} />
                 </View>
             );
         }
@@ -237,6 +239,8 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                     <TouchableOpacity activeOpacity={0.8} onPress={() => onImagePress(photo, 1, rootTag)}>
                         <KwaiImage style={styles.twoImageRight} source={{ uri: photo.images[1] }} />
                     </TouchableOpacity>
+                    {/* 双图右侧空白区域，点击跳转详情页 */}
+                    <View style={styles.twoImageRightSpace} />
                 </View>
             );
         }
@@ -274,36 +278,45 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <TouchableOpacity 
+            style={styles.container} 
+            activeOpacity={1} 
+            onPress={() => onContentPress(photo, rootTag, false)}
+        >
             <View style={styles.avatarContainer}>
                 <TouchableOpacity activeOpacity={0.8} onPress={() => onAvatarPress(photo)}>
                     <KwaiImage style={styles.avatar} source={{ uri: photo.avatar_url }} />
                 </TouchableOpacity>
-                <Text style={styles.userName} numberOfLines={1}>
-                    {photo.user_name}
-                </Text>
+                <TouchableOpacity activeOpacity={1} onPress={() => onContentPress(photo, rootTag, false)}>
+                    <Text style={styles.userName} numberOfLines={1}>
+                        {photo.user_name}
+                    </Text>
+                </TouchableOpacity>
             </View>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => onContentPress(photo, rootTag, false)}>
-                <View style={styles.descriptionContainer}>
-                    {photo.caption_title ? (
-                        renderRichText(
-                            photo.caption_title,
-                            [styles.captionTitle, { marginBottom: photo.caption ? 6 : 0 }],
-                            1
-                        )
-                    ) : null}
-                    {photo.caption ? (
-                        renderRichText(
-                            photo.caption,
-                            styles.description,
-                            3
-                        )
-                    ) : null}
-                </View>
-            </TouchableOpacity>
+            
+            <View style={styles.descriptionContainer}>
+                {photo.caption_title ? (
+                    renderRichText(
+                        photo.caption_title,
+                        [styles.captionTitle, { marginBottom: photo.caption ? 6 : 0 }],
+                        1
+                    )
+                ) : null}
+                {photo.caption ? (
+                    renderRichText(
+                        photo.caption,
+                        styles.description,
+                        3
+                    )
+                ) : null}
+            </View>
+            
             {renderImages()}
+            
             <View style={styles.bottomContainer}>
-                <Text style={styles.time}>{`${timeText} 发布`}</Text>
+                <TouchableOpacity activeOpacity={1} onPress={() => onContentPress(photo, rootTag, false)}>
+                    <Text style={styles.time}>{`${timeText} 发布`}</Text>
+                </TouchableOpacity>
                 <View style={styles.interactionContainer}>
                     <TouchableOpacity activeOpacity={0.8} onPress={handleLike}>
                         <View style={styles.interaction}>
@@ -344,7 +357,7 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                     </TouchableOpacity>
                 </View>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 
@@ -396,9 +409,9 @@ const styles = StyleSheet.create({
         fontWeight: '500', // 稍微加粗
     },
     oneImageContainer: {
+        flexDirection: 'row',
         marginLeft: 40,
         overflow: 'hidden',
-        width: oneImageItemWidth,
         height: oneImageItemHeight,
         borderRadius: 8,
     },
@@ -406,6 +419,11 @@ const styles = StyleSheet.create({
         width: oneImageItemWidth,
         height: oneImageItemHeight,
         borderRadius: 8,
+    },
+    oneImageRightSpace: {
+        flex: 1,
+        height: oneImageItemHeight,
+        minWidth: 20, // 确保有一定的点击区域
     },
     oneImagePlaceholder: {
         width: oneImageItemWidth,
@@ -417,6 +435,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginLeft: 40,
         overflow: 'hidden',
+        height: itemHeight,
     },
     twoImageLeft: {
         width: itemWidth,
@@ -430,6 +449,11 @@ const styles = StyleSheet.create({
         height: itemHeight,
         borderTopRightRadius: 8,
         borderBottomRightRadius: 8,
+    },
+    twoImageRightSpace: {
+        flex: 1,
+        height: itemHeight,
+        minWidth: 20, // 确保有一定的点击区域
     },
     twoImageLeftPlaceholder: {
         width: itemWidth,

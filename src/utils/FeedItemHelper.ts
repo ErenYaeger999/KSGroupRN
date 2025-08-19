@@ -101,8 +101,7 @@ export const onLikePress = (
     setIsLike: (isLike: boolean) => void,
     setLikeCount: (likeCount: number) => void,
 ) => {
-    bridge
-        .invoke('feed.likePhoto', {
+    bridge.invoke('feed.likePhoto', {
             cancel: photo.liked === 0 ? '0' : '1',
             serverExpTag: photo.serverExpTag,
             expTag: photo.exp_tag,
