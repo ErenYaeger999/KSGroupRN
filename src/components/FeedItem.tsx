@@ -12,7 +12,7 @@ import {
     onTopicPress,
     formatCount,
     formatTimestamp,
-} from '../utils/FeedItemHelper';
+} from '../network/FeedItemService';
 
 interface PhotoModel {
     photo_id: string;
@@ -133,11 +133,7 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
     const renderRichText = (text: string, style: any, numberOfLines?: number) => {
         const parts = parseText(text);
         
-        // 调试信息
-        if (text.includes('@') || text.includes('#')) {
-            console.log('解析文本:', text);
-            console.log('解析结果:', parts);
-        }
+
         
         return (
             <Text style={style} numberOfLines={numberOfLines}>

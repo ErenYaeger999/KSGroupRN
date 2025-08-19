@@ -15,7 +15,7 @@ import NavBar from '../components/NavBar';
 import FloatingActionButton from '../components/FloatingActionButton';
 import FeedItem, { FeedItemModel } from '../components/FeedItem';
 import { useSharedStore } from '../store/store';
-import { useFetchGroupFeeds } from '../network/GroupService';
+import { useFetchGroupFeeds } from '../network/GroupHeaderService';
 
 const TABS = ['综合', '热门', '最新'];
 
@@ -106,7 +106,7 @@ const ImageGroupPage: React.FC<any> = ({ route, ...nativeProps }) => {
         if (single?.list?.length) {
             images = [getUrl(cdnSingle, single.list[0])];
         } else if (atlas?.list?.length) {
-            images = atlas.list.slice(0, 3).map((p: string) => getUrl(cdnAtlas, p));
+            images = atlas.list.map((p: string) => getUrl(cdnAtlas, p));
         }
 
         

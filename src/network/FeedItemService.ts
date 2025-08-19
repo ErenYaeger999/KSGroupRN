@@ -62,10 +62,6 @@ export const onAvatarPress = (photo: any) => {
 
 // 图片点击事件
 export const onImagePress = (photo: any, imageIndex: number, rootTag: number) => {
-    console.log('------------');
-    console.log(photo);
-    console.log(photo.images.length);
-    console.log('------------');
     // 尝试调用原生图片预览
     NativeModules.Kds.invoke(
         'feed',

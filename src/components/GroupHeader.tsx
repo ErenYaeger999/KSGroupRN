@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, BackHandler } from 'react-native';
 import { useSharedStore } from '../store/store';
-import { useFetchGroupInfo } from '../network/GroupService';
+import { useFetchGroupInfo } from '../network/GroupHeaderService';
 
 interface GroupHeaderProps {
     groupId?: number;
