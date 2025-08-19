@@ -194,15 +194,10 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
         onCollectPress(
             photo,
             isCollected,
-            (newCollectState, newCount) => {
-                setIsCollected(newCollectState);
-                setCollectCount(newCount);
-            },
-            (error) => {
-                console.log('收藏失败:', error);
-            },
-            groupId,
-            groupName
+            rootTag,
+            setIsCollected,
+            collectCount,
+            setCollectCount,
         );
     };
 

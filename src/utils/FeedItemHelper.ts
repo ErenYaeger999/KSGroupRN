@@ -133,25 +133,37 @@ export const onTopicPress = (topicName: string) => {
 // 收藏事件
 export const onCollectPress = (
     photo: any,
-    currentCollectState: boolean,
-    onSuccess: (newCollectState: boolean, newCount: number) => void,
-    onError: (error: string) => void,
-    groupId?: number,
-    groupName?: string
+    isCollected: boolean,
+    rootTag: number,
+    setIsCollected: (isCollected: boolean) => void,
+    collectCount: number,
+    setCollectCount: (collectCount: number) => void,
 ) => {
-    // TODO: 在这里添加收藏API调用
-    // 模拟异步操作
-    setTimeout(() => {
-        const newCollectState = !currentCollectState;
-        const newCount = (photo.collect_count || 0) + (newCollectState ? 1 : -1);
-        onSuccess(newCollectState, newCount);
-        
-        // 记录埋点日志
-        console.log('收藏操作埋点:', {
-            photoId: photo.photo_id,
-            action: newCollectState ? 'collect' : 'uncollect',
-            groupId,
-            groupName
+    NativeModules.Kds.invoke(
+        'feed',
+        'collectOrUnCollectPhoto',
+        JSON.stringify({
+            photoId: `${photo.photo_id}`,
+            userId: `${photo.user_id}`,
+            expTag: photo.exp_tag,
+            source: 'GRAPHICS_TEXT_GROUP_PAGE',
+            isCollect: !isCollected,
+            rootTag: rootTag,
+        }),
+    )
+        .then((response) => {
+            console.log('收藏操作成功:', response);
+            const currentCollected = !isCollected;
+            const currentCollectCount = Math.max(
+                0,
+                currentCollected ? collectCount + 1 : collectCount - 1,
+            );
+            photo.collected = currentCollected;
+            photo.collect_count = currentCollectCount;
+            setIsCollected(currentCollected);
+            setCollectCount(currentCollectCount);
+        })
+        .catch((e) => {
+            console.log('收藏操作失败:', e);
         });
-    }, 100);
 };
