@@ -190,6 +190,9 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
         );
     };
 
+
+    const collectIcon = require('../images/collected.png');
+    const unCollectIcon = require('../images/collect.png');
     const handleCollect = () => {
         onCollectPress(
             photo,
@@ -315,7 +318,15 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                     <TouchableOpacity activeOpacity={0.8} onPress={handleCollect}>
                         <View style={styles.interaction}>
                             <Text style={styles.interactionText}>
-                                {isCollected ? '⭐️' : '☆'} {formatCount(collectCount)}
+                                <KwaiImage
+                                    style={styles.interactionIcon}
+                                    source={
+                                        isCollected
+                                            ? collectIcon
+                                            : unCollectIcon
+                                    }
+                                />
+                                {formatCount(collectCount)}
                             </Text>
                         </View>
                     </TouchableOpacity>
@@ -485,6 +496,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginLeft: 16,
+    },
+    interactionIcon: {
+        width: 24,
+        height: 24,
     },
     interactionText: {
         fontSize: 14,
