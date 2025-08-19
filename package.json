@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "@babel/runtime": "^7.17.2",
+        "@kds/bridge-lite": "^1.2.6",
         "@kds/image": "^1.15.9",
         "@kds/react-native-gesture-handler": "^1.7.13",
         "@kds/react-native-svg": "^12.1.9",

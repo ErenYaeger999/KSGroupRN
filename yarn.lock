@@ -1563,6 +1563,11 @@
   dependencies:
     md5 "^2.3.0"
 
+"@kds/bridge-lite@^1.2.6":
+  version "1.2.6"
+  resolved "https://npm.corp.kuaishou.com/@kds/bridge-lite/-/@kds/bridge-lite-1.2.6.tgz#1de3f09973dc167dcdb67f0020cbf0eb321f0208"
+  integrity sha512-CuNFYDOH1I9vq2x5zgnLkOT2mFebD355ltVRrcTzGR6p0QLYGOZXQZMjG2rjhxnwgkJWaibyo9hr6cVX3HpNDw==
+
 "@kds/bundle-cipher@~1.5.0":
   version "1.5.0"
   resolved "https://npm.corp.kuaishou.com/@kds/bundle-cipher/-/@kds/bundle-cipher-1.5.0.tgz#311184fb8ac71e511a6a07d17253b42d30aa4ad8"

@@ -1,4 +1,5 @@
 import { Alert, NativeModules } from 'react-native';
+import bridge from '@kds/bridge-lite';
 
 function jumpUrl(url: string) {
     if (!url) {
@@ -95,27 +96,34 @@ export const onContentPress = (photo: any, rootTag: number, isCommentClick: bool
 // 点赞事件
 export const onLikePress = (
     photo: any,
-    currentLikeState: boolean,
-    onSuccess: (newLikeState: boolean, newCount: number) => void,
-    onError: (error: string) => void,
-    groupId?: number,
-    groupName?: string
+    isLike: boolean,
+    likeCount: number,
+    setIsLike: (isLike: boolean) => void,
+    setLikeCount: (likeCount: number) => void,
 ) => {
-    // TODO: 在这里添加点赞API调用
-    // 模拟异步操作
-    setTimeout(() => {
-        const newLikeState = !currentLikeState;
-        const newCount = (photo.like_count || 0) + (newLikeState ? 1 : -1);
-        onSuccess(newLikeState, newCount);
-        
-        // 记录埋点日志
-        console.log('点赞操作埋点:', {
-            photoId: photo.photo_id,
-            action: newLikeState ? 'like' : 'unlike',
-            groupId,
-            groupName
+    bridge
+        .invoke('feed.likePhoto', {
+            cancel: photo.liked === 0 ? '0' : '1',
+            serverExpTag: photo.serverExpTag,
+            expTag: photo.exp_tag,
+            photoId: `${photo.photo_id}`,
+            userId: photo.user_id,
+            biz: '',
+        })
+        .then(() => {
+            console.log('点赞成功');
+            const currentLike = !isLike;
+            const currentLikeCount = currentLike
+                ? likeCount + 1
+                : likeCount - 1;
+            photo.liked = currentLike ? 1 : 0;
+            photo.like_count = currentLikeCount;
+            setIsLike(currentLike);
+            setLikeCount(currentLikeCount);
+        })
+        .catch((e) => {
+            console.log('点赞失败', e);
         });
-    }, 100);
 };
 
 // @用户点击事件

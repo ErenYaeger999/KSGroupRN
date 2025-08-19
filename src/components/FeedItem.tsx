@@ -174,19 +174,16 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
         );
     };
 
+
+    const likeIcon = require('../images/liked.png');
+    const unLikeIcon = require('../images/like.png');
     const handleLike = () => {
         onLikePress(
             photo,
             isLike,
-            (newLikeState, newCount) => {
-                setIsLike(newLikeState);
-                setLikeCount(newCount);
-            },
-            (error) => {
-                console.log('点赞失败:', error);
-            },
-            groupId,
-            groupName
+            likeCount,
+            setIsLike,
+            setLikeCount,
         );
     };
 
@@ -310,14 +307,17 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                 <View style={styles.interactionContainer}>
                     <TouchableOpacity activeOpacity={0.8} onPress={handleLike}>
                         <View style={styles.interaction}>
-                            <Text style={styles.interactionText}>
-                                {isLike ? '❤️' : '🤍'} {formatCount(likeCount)}
-                            </Text>
+                            <KwaiImage
+                                    style={styles.interactionIcon}
+                                    source={isLike ? likeIcon : unLikeIcon}
+                                />
+                                <Text style={styles.interactionText}>
+                                    {formatCount(likeCount)}
+                                </Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity activeOpacity={0.8} onPress={handleCollect}>
                         <View style={styles.interaction}>
-                            <Text style={styles.interactionText}>
                                 <KwaiImage
                                     style={styles.interactionIcon}
                                     source={
@@ -326,16 +326,21 @@ const FeedItem: React.FC<{ model: FeedItemModel }> = ({ model }) => {
                                             : unCollectIcon
                                     }
                                 />
-                                {formatCount(collectCount)}
-                            </Text>
-                        </View>
+                                <Text style={styles.interactionText}>
+                                    {formatCount(collectCount)}
+                                </Text>
+                            </View>
                     </TouchableOpacity>
                     <TouchableOpacity activeOpacity={0.8} onPress={() => onContentPress(photo, rootTag, true)}>
                         <View style={styles.interaction}>
-                            <Text style={styles.interactionText}>
-                                💬 {formatCount(photo.comment_count || 0)}
-                            </Text>
-                        </View>
+                                <KwaiImage
+                                    style={styles.interactionIcon}
+                                    source={require('../images/comment.png')}
+                                />
+                                <Text style={styles.interactionText}>
+                                    {formatCount(photo.comment_count)}
+                                </Text>
+                            </View>
                     </TouchableOpacity>
                 </View>
             </View>
